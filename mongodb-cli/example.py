@@ -66,5 +66,3 @@ def query_mongo_filters_or_multi():
 
     print(result)
 
-delete()
-
