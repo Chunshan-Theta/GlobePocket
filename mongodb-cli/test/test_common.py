@@ -23,5 +23,23 @@ class MyTestCase(unittest.TestCase):
                 self.assertEqual(len(v),len(obj[k]))
                 self.assertEqual(type(v),type(obj[k]))
 
+
+    def test_MongoFilters(self):
+        fs = MongoFilters()
+        fs.add_filter_in(colume="label1", val=["A","B","C"])\
+            .add_filter_in(colume="label2", val=["C","D","E"])\
+            .add_filter_equal(colume="label3", val="hi")
+        ans = {'label1': {'$in': ['A', 'B', 'C']}, 'label2': {'$in': ['C', 'D', 'E']}, 'label3': 'hi'}
+        self.assertEqual(fs,ans)
+
+    def test_query_or_MongoFilters(self):
+        fs = MongoFilters()
+        fs.add_filter_in(colume="label1", val=["A","B","C"])\
+            .or_filters(MongoFilters().add_filter_equal(colume="label3", val="hi"))
+
+        ans = {"$or": [{"label1": {"$in": ["A", "B", "C"]}}, {"label3": "hi"}]}
+        self.assertEqual(ans,fs)
+
+
 if __name__ == '__main__':
     unittest.main()

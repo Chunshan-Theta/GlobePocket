@@ -65,8 +65,6 @@ class MongoFilters(dict):
                 self.pop(key, None)
         return self
 
-
-
 class MongoBasicClient:
     def __init__(self, host, db_name, db_list_name, user= "pythontest", password= "pythontest"):
         self.user = user
@@ -88,9 +86,6 @@ class MongoBasicClient:
         insert_result: InsertOneResult = self.SelectedList.insert_one(document=val)
         return insert_result
 
-    def insert_multi(self, vals: [dict]):
-        raise NotImplementedError
-
     def query(self,projection: dict = None,limit: int = 0, **kwargs):
 
         if projection is None:
@@ -108,10 +103,9 @@ class MongoBasicClient:
             return list(self.SelectedList.find(filter= filters, projection=projection))
 
     def query_in(self, **kwargs):
-        #return self.query(shortcode={"$in": filter_list})
         return self.query(**{key:{"$in": val} for key, val in kwargs.items()})
 
-    def update(self,filters, **kwargs):
+    def update(self,filters:dict, **kwargs):
         default = {
             "updated": datetime.datetime.now().strftime(self._date_fmt)
         }
@@ -121,6 +115,10 @@ class MongoBasicClient:
         newvalues = {"$set": kwargs}
 
         self.SelectedList.update_many(filters, newvalues)
+
+    def delete(self, **kwargs):
+
+        self.SelectedList.delete_many(kwargs)
 
     ##
     def change_user(self,account,pws):
