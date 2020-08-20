@@ -1,1 +1,0 @@
-from . import manger, result
