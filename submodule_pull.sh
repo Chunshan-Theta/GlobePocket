@@ -1,2 +1,1 @@
-git submodule init
-git submodule update --recursive
+git submodule foreach --recursive git pull origin master
