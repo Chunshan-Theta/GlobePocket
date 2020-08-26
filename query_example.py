@@ -109,7 +109,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788"):
 
     def bot_respond(res: RunResult):
         for i in res.json()['body']['data']:
-            print("BOT: ", i['body']['txt'])
+            return f"BOT: {i['body']['txt']}"
 
     switch_plan_handler = SwitchRePattenPlan()
     default_plan = Plan(units=[StageQueryDefaultSwitch()])
@@ -120,8 +120,8 @@ def base_massager_handler(received_text = "hihi",user_id="123456788"):
     switch_plan_handler.add_plan(re_patten=re_search_from_ins.msg(), plan=base_responds_plan)
 
     #
-    bot_respond(switch_plan_handler.switch_and_run_finish(switch_label=received_text, text=received_text,sender_id=user_id))
-
+    responds = bot_respond(switch_plan_handler.switch_and_run_finish(switch_label=received_text, text=received_text,sender_id=user_id))
+    print(responds)
 orders = {}
 base_massager_handler(received_text = "hihi")
 print("-"*20)
@@ -146,3 +146,15 @@ print("-"*20)
 base_massager_handler(received_text = "qweksalhfoiqweqw")
 print("-"*20)
 base_massager_handler(received_text = "新北市都會公園")
+print("-"*20)
+base_massager_handler(received_text = "hi",user_id="user1")
+print("-"*20)
+base_massager_handler(received_text = "hi",user_id="user2")
+print("-"*20)
+base_massager_handler(received_text = "1",user_id="user1")
+print("-"*20)
+base_massager_handler(received_text = "清境農場",user_id="user1")
+print("-"*20)
+base_massager_handler(received_text = "2",user_id="user2")
+print("-"*20)
+base_massager_handler(received_text = "武陵",user_id="user2")
