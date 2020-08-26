@@ -1,5 +1,7 @@
+from google_helper import get_place_by_text
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
-from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,string_query_get_location,string_query_order_completed
+from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
+    string_query_get_location,string_query_order_completed,string_not_found_location
 
 class chatbot_default(Stage):
     def run(self,text,sender_id) -> RunResult:
@@ -42,16 +44,28 @@ class StageQueryDate(Stage):
             })
 class StageQueryLocation(Stage):
     def run(self,text,sender_id) -> RunResult:
-        # 蒐集到地點
-        orders[sender_id]["location"] = text
-        print("BOT: ",string_query_get_location.msg().format(text=text))
 
-        # 完成搜集時間與地點
-        orders[sender_id]["status"] = "completed"
-        return RunResult(success=True, label="StageQueryLocation", body={
-            "txt": string_query_order_completed.msg().format(date=orders[sender_id]["date"],
-                                                             location=orders[sender_id]["location"])
-        })
+        places = get_place_by_text(text=text)
+        if len(places["candidates"]) >= 1:
+            # 蒐集到地點
+            place_name = places["candidates"][0]['name']
+            orders[sender_id]["location"] = place_name
+            print("BOT: ", string_query_get_location.msg().format(text=place_name))
+
+            # 完成搜集時間與地點
+            orders[sender_id]["status"] = "completed"
+            return RunResult(success=True, label="StageQueryLocation", body={
+                "txt": string_query_order_completed.msg().format(date=orders[sender_id]["date"],
+                                                                 location=orders[sender_id]["location"])
+            })
+        else:
+            print("BOT: ", string_not_found_location.msg().format(text=text))
+            return RunResult(success=True, label="StageQueryDate", body={
+                "txt": string_query_location.msg()
+            })
+
+
+
 class StageQueryDefaultSwitch(Stage):
     #
     switch_plan_handler = SwitchPlan()
@@ -124,3 +138,11 @@ print("-"*20)
 base_massager_handler(received_text = "2")
 print("-"*20)
 base_massager_handler(received_text = "台北101")
+print("-"*20)
+base_massager_handler(received_text = "hihi")
+print("-"*20)
+base_massager_handler(received_text = "3")
+print("-"*20)
+base_massager_handler(received_text = "qweksalhfoiqweqw")
+print("-"*20)
+base_massager_handler(received_text = "新北市都會公園")
