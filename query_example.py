@@ -16,9 +16,12 @@ class StageSearchFromIns(Stage):
 
 class StageQueryNewOrder(Stage):
     def run(self,text,sender_id) -> RunResult:
+
         # new client
-        if sender_id not in orders:
-            orders[sender_id] = {}
+        if sender_id not in orders :
+            orders[sender_id] = {"status":"running"}
+        elif orders[sender_id]["status"] == "completed":
+            orders[sender_id] = {"status": "running"}
         return RunResult(success=True, label="StageNewQuery", body={
             "txt": string_query_default.msg()
         })
@@ -44,6 +47,7 @@ class StageQueryLocation(Stage):
         print("BOT: ",string_query_get_location.msg().format(text=text))
 
         # 完成搜集時間與地點
+        orders[sender_id]["status"] = "completed"
         return RunResult(success=True, label="StageQueryLocation", body={
             "txt": string_query_order_completed.msg().format(date=orders[sender_id]["date"],
                                                              location=orders[sender_id]["location"])
@@ -61,10 +65,12 @@ class StageQueryDefaultSwitch(Stage):
     switch_plan_handler.add_plan(switch_label="NEW_ORDER", plan=new_order_plan)
     switch_plan_handler.add_plan(switch_label="QUERY_DATE", plan=query_date_plan)
     switch_plan_handler.add_plan(switch_label="QUERY_LOCATION", plan=query_location_plan)
-    def run(self,text,sender_id) -> RunResult:
 
+    def run(self,text,sender_id) -> RunResult:
         user_stage = None
-        if sender_id  not in orders:
+        if sender_id not in orders:
+            user_stage = "NEW_ORDER"
+        elif orders[sender_id]["status"] == "completed":
             user_stage = "NEW_ORDER"
         elif "date" not in orders[sender_id]:
             user_stage = "QUERY_DATE"
@@ -72,21 +78,21 @@ class StageQueryDefaultSwitch(Stage):
             user_stage = "QUERY_LOCATION"
 
         if user_stage is not None:
-            #print("\t",user_stage,text,sender_id)
             res = self.switch_plan_handler.switch_and_run_finish(switch_label=user_stage, text=text,sender_id=sender_id)
             res = res.json()['body']['data'][0]['body']['txt']
-            return RunResult(success=True, label="RepeatText", body={
+            return RunResult(success=True, label="StageQueryDefaultSwitch", body={
                 "txt": res
             })
 
-
         else:
-            return RunResult(success=True, label="RepeatText", body={
-                "txt": string_query_default.msg()
+            return RunResult(success=True, label="StageQueryDefaultSwitch_unknown_situation", body={
+                "txt": f"{string_query_default.msg()},{orders[sender_id]}"
             })
+
 
 def base_massager_handler(received_text = "hihi",user_id="123456788"):
     print(f"client:{received_text}")
+
     def bot_respond(res: RunResult):
         for i in res.json()['body']['data']:
             print("BOT: ", i['body']['txt'])
@@ -112,4 +118,9 @@ print("-"*20)
 base_massager_handler(received_text = "1")
 print("-"*20)
 base_massager_handler(received_text = "板橋車站")
-
+print("-"*20)
+base_massager_handler(received_text = "hihi")
+print("-"*20)
+base_massager_handler(received_text = "2")
+print("-"*20)
+base_massager_handler(received_text = "台北101")
