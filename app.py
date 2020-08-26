@@ -1,10 +1,14 @@
 from flask import Flask, request, abort
-
-
+from fb_message_bot.fb_helper import FbHelperBot
+import os
 ## MESSENGER
 PAGE_ACCESS_TOKEN="EAAluGaMwMzwBAJjhPnmpCYrgmYHTUqTDQUF8AqzByfW35TNSmLZB3ZBRvvnXF7QShTUgGE5IBIB3b9j0Ur3RxzZAUmkhPqZCw0ESZAOFh2hdfrpNlc7QyzpUt4M2Uox3hhxSggBNgFx1QSwNOok6CoCfKrMen4ZCh7LZC1rZAXgnjFN5a5x4B0cN"
 MESSENGER_AUTH_TOKEN = "messenger_auth_token"
 bot = FbHelperBot(PAGE_ACCESS_TOKEN)
+
+
+#app
+app = Flask(__name__)
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback/messenger", methods=['GET'])
@@ -50,3 +54,7 @@ def webhook():
                         bot.send_text_message(sender_id, f"抱歉，不了解你的指令")
                         raise e
     return "ok", 200
+
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 80))
+    app.run(host='0.0.0.0', port=port)
