@@ -29,20 +29,20 @@ def get_weather(Latitude, Longitude):
             datetime = b.text.split(" | ")
             # print(datetime)
 
-            #
+            #{'TemperatureValue': '22°', 'PercentageValue': '30%', 'Wind': 'WNW 4 km/h'}
             span_dict = {}
             for s in b.parent.findAll("span"):
                 if s.get("data-testid") is not None:
                     span_dict.update({s.get("data-testid"): s.text})
-            # print(span_dict)
+            #print(span_dict)
             combine_dict.update(span_dict)
 
-            #
+            # {'content': 'Cloudy early with partial clearing expected late. Low 22C. Winds light and variable.'}
             p_dict = {"content": b.parent.find("p").text}
-            # print(p_dict)
+            #print(p_dict)
             combine_dict.update(p_dict)
 
-            #
+            # {'PercentageValue': '96%', 'UVIndexValue': '0 of 10', 'MoonriseTime': '10:30 pm', 'MoonsetTime': '11:19 am'}
             li_dict = {}
             uls = b.parent.parent.findAll("ul")
             if datetime[1] == "Day":
@@ -55,7 +55,7 @@ def get_weather(Latitude, Longitude):
                 element = li.find("span", {
                     "class": "_-_-components-src-molecule-DaypartDetails-DetailsTable-DetailsTable--value--2YD0-"})
                 li_dict.update({element.get("data-testid"): element.text})
-            # print(li_dict)
+            #print(li_dict)
             combine_dict.update(li_dict)
 
             if datetime[0] not in days_forecast_10:
