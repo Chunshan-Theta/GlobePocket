@@ -2,6 +2,8 @@ from flask import Flask, request, abort
 from fb_message_bot.fb_helper import FbHelperBot
 import os
 ## MESSENGER
+from query_example import base_massager_handler
+
 PAGE_ACCESS_TOKEN="EAAJU24185IABABeQO2HZCMq2f77SklxIvp40kYX0PZAmi6K1P7UGzpkD9xZB9ZAZAN8gIOstxsZCUFBI5Vp1X9bT7kL0gnsB6bnP2giU78LeuGb8mP5bEZCddy93EZCRrk5K4i2JuHxRwUYSHDkZAbkbvgibXTFOX9LYkRbZAjx307WvmwqHSF92TE"
 MESSENGER_AUTH_TOKEN = "messenger_auth_token"
 bot = FbHelperBot(PAGE_ACCESS_TOKEN)
@@ -48,7 +50,8 @@ def webhook():
 
                     #
                     try:
-                        bot.send_text_message(sender_id, f"your say: {messaging_text}")
+                        #bot.send_text_message(sender_id, f"your say: {messaging_text}")
+                        base_massager_handler(bot_helper=bot, user_id=sender_id,received_text=messaging_text)
 
                     except Exception as e:
                         bot.send_text_message(sender_id, f"抱歉，不了解你的指令")
