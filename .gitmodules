@@ -1,6 +1,6 @@
 [submodule "mongodb-cli"]
 	path = mongodb-cli
-	url = https://github.com/Chunshan-Theta/mongodb-cli.git
+	url = https://github.com/Chunshan-Theta/mongodb-cli
 [submodule "sessionscript"]
 	path = sessionscript
-	url = https://github.com/Chunshan-Theta/sessionscript.git
+	url = https://github.com/Chunshan-Theta/sessionscript
