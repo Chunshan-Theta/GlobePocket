@@ -1,6 +1,6 @@
 from fb_message_bot.fb_helper import FbHelperBot
 from fb_message_bot.fb_quickreply import FbQuickReplyElement, FbQuickReply
-from google_helper import get_place_by_text
+from google_helper import get_place_by_text, get_weather
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
 from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
     string_query_get_location,string_query_order_completed,string_not_found_location
@@ -63,15 +63,20 @@ class StageQueryLocation(Stage):
         places = get_place_by_text(text=text)
         if len(places["candidates"]) >= 1:
             # 蒐集到地點
-            place_name = places["candidates"][0]['name']
+            place = places["candidates"][0]
+            place_name = place['name']
+            place_geo_lat = place['geometry']['location']['lat']
+            place_geo_lng = place['geometry']['location']['lng']
             orders[sender_id]["location"] = place_name
+            orders[sender_id]["location_geo"] = (place_geo_lat,place_geo_lng)
 
             # 完成搜集時間與地點
             orders[sender_id]["status"] = "completed"
             return RunResult(success=True, label="StageQueryLocation", body={
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
-                    ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"]))
+                    ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
+                    ("CPT", (place_geo_lat,place_geo_lng))
                 ]
             })
         else:
@@ -138,6 +143,9 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 bot_helper.send_text_message(message=a[1],recipient_id=user_id)
             elif a[0] == "FbQuickReply":
                 bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
+            elif a[0] == "CPT":
+                weather = get_weather(a[1][0], a[1][1])
+                bot_helper.send_text_message(recipient_id=user_id,message=weather)
 
     #
     print(f"Client: {received_text}")
