@@ -4,7 +4,7 @@ from google_helper import get_place_by_text
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
 from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
     string_query_get_location,string_query_order_completed,string_not_found_location
-
+import datetime
 
 
 orders = {}
@@ -35,7 +35,7 @@ class StageQueryNewOrder(Stage):
             orders[sender_id] = {"status": "running"}
         return RunResult(success=True, label="StageNewQuery", body={
             "bot_actions": [
-                ("MSG", string_query_default.msg())
+                ("FbQuickReply", get_10_day())
             ]
         })
 
@@ -45,7 +45,7 @@ class StageQueryDate(Stage):
         if text not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
-                    ("FbQuickReply", FbQuickReply_date_arr)
+                    ("FbQuickReply", get_10_day())
                 ]
             })
         else:
@@ -154,8 +154,10 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
     bot_action_decode(bot_actions)
 
 
-date_arr = [FbQuickReplyElement(title=str(i), payload="choices Red") for i in range(0,10)]
-FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
+def get_10_day() -> FbQuickReply:
+    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%m/%d"), payload="choices Red") for i in range(0,10)]
+    FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
+    return FbQuickReply_date_arr
 
 """
 base_massager_handler(received_text = "hihi")
