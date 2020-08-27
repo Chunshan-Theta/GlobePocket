@@ -134,7 +134,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
         for a in actions:
             if a[0] == 'MSG':
                 #print(f"BOT: {a[1]}")
-                bot_helper.send_text_message(a[1])
+                bot_helper.send_text_message(message=a[1],recipient_id=user_id)
 
     #
     print(f"Client: {received_text}")
