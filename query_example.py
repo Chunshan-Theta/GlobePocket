@@ -1,4 +1,5 @@
 from fb_message_bot.fb_helper import FbHelperBot
+from fb_message_bot.fb_quickreply import FbQuickReplyElement, FbQuickReply
 from google_helper import get_place_by_text
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
 from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
@@ -44,7 +45,7 @@ class StageQueryDate(Stage):
         if text not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
-                    ("MSG", string_query_default.msg())
+                    ("FbQuickReply", FbQuickReply_date_arr)
                 ]
             })
         else:
@@ -132,9 +133,11 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
 
     def bot_action_decode(actions: list):
         for a in actions:
-            if a[0] == 'MSG':
+            if a[0] == "MSG":
                 #print(f"BOT: {a[1]}")
                 bot_helper.send_text_message(message=a[1],recipient_id=user_id)
+            elif a[0] == "FbQuickReply":
+                bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
 
     #
     print(f"Client: {received_text}")
@@ -149,6 +152,10 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
     #
     bot_actions = bot_actions(switch_plan_handler.switch_and_run_finish(switch_label=received_text, text=received_text,sender_id=user_id))
     bot_action_decode(bot_actions)
+
+
+date_arr = [FbQuickReplyElement(title=str(i), payload="choices Red") for i in range(0,10)]
+FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
 
 """
 base_massager_handler(received_text = "hihi")
