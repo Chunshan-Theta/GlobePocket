@@ -5,7 +5,7 @@ from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenP
 from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
     string_query_get_location,string_query_order_completed,string_not_found_location
 import datetime
-
+import re
 
 orders = {}
 class chatbot_default(Stage):
@@ -42,7 +42,7 @@ class StageQueryNewOrder(Stage):
 class StageQueryDate(Stage):
     def run(self,text,sender_id) -> RunResult:
         #print(text,sender_id)
-        if text not in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+        if re.match(r"[0,1]{1}\d{1}\/[0,1,2,3]{1}\d{1}",text,re.MULTILINE):
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
                     ("FbQuickReply", get_10_day())
