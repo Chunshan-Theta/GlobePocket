@@ -42,7 +42,7 @@ class StageQueryNewOrder(Stage):
 class StageQueryDate(Stage):
     def run(self,text,sender_id) -> RunResult:
         #print(text,sender_id)
-        if re.match(r"[0,1]{1}\d{1}\/[0,1,2,3]{1}\d{1}",text,re.MULTILINE) is None:
+        if re.match(r"\d{2}\/[0,1]{1}\d{1}\/[0,1,2,3]{1}\d{1}",text,re.MULTILINE) is None:
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
                     ("FbQuickReply", get_10_day())
@@ -76,7 +76,7 @@ class StageQueryLocation(Stage):
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
                     ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
-                    ("CPT", (place_geo_lat,place_geo_lng,datetime.datetime.strptime(orders[sender_id]["date"],"%m/%d")))
+                    ("CPT", (place_geo_lat,place_geo_lng,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d")))
                 ]
             })
         else:
@@ -130,7 +130,7 @@ class StageQueryDefaultSwitch(Stage):
             })
 
 
-def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None):
+def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None,local_mode=False):
 
     def bot_actions(res: RunResult):
         for i in res.json()['body']['data']:
@@ -139,16 +139,27 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
     def bot_action_decode(actions: list):
         for a in actions:
             if a[0] == "MSG":
-                #print(f"BOT: {a[1]}")
-                bot_helper.send_text_message(message=a[1],recipient_id=user_id)
+                if local_mode:
+                    print(f"BOT: {a[1]}")
+                else:
+                    bot_helper.send_text_message(message=a[1],recipient_id=user_id)
             elif a[0] == "FbQuickReply":
-                bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
+                if local_mode:
+                    print(f"BOT: {a[1]}")
+                else:
+                    bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
                 week = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+                date = a[1][2].strftime("%m/%d")
                 date_day = a[1][2].strftime("%d")
                 date_lable = f"{week[a[1][2].weekday()]} {date_day}"
-                bot_helper.send_text_message(recipient_id=user_id,message=str(weather['forecast'][date_lable]))
+                if local_mode:
+                    print(f"BOT:當天{date}白天 {str(weather['forecast'][date_lable]['Day'])}")
+                    print(f"BOT:當天{date}晚上 {str(weather['forecast'][date_lable]['Night'])}")
+                else:
+                    bot_helper.send_text_message(recipient_id=user_id,message=f"BOT:當天{date}白天 {str(weather['forecast'][date_lable]['Day'])}")
+                    bot_helper.send_text_message(recipient_id=user_id,message=f"BOT:當天{date}晚上 {str(weather['forecast'][date_lable]['Night'])}")
 
     #
     print(f"Client: {received_text}")
@@ -166,7 +177,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
 
 
 def get_10_day() -> FbQuickReply:
-    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%m/%d"), payload="choices Red") for i in range(0,10)]
+    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%y/%m/%d"), payload="choices Red") for i in range(0,10)]
     FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
     return FbQuickReply_date_arr
 
@@ -175,11 +186,15 @@ base_massager_handler(received_text = "hihi")
 print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
+"""
+"""
 base_massager_handler(received_text = "hihi")
 print("-"*20)
-base_massager_handler(received_text = "1")
+base_massager_handler(received_text = "20/08/29")
 print("-"*20)
 base_massager_handler(received_text = "板橋車站")
+"""
+"""
 print("-"*20)
 base_massager_handler(received_text = "hihi")
 print("-"*20)
