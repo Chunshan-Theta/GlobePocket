@@ -42,7 +42,7 @@ class StageQueryNewOrder(Stage):
 class StageQueryDate(Stage):
     def run(self,text,sender_id) -> RunResult:
         #print(text,sender_id)
-        if re.match(r"[0,1]{1}\d{1}\/[0,1,2,3]{1}\d{1}",text,re.MULTILINE):
+        if re.match(r"[0,1]{1}\d{1}\/[0,1,2,3]{1}\d{1}",text,re.MULTILINE) is None:
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
                     ("FbQuickReply", get_10_day())
