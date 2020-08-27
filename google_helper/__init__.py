@@ -44,10 +44,13 @@ def get_weather(Latitude, Longitude):
 
             #
             li_dict = {}
+            uls = b.parent.parent.findAll("ul")
             if datetime[1] == "Day":
-                ul = b.parent.parent.findAll("ul")[0]
+                ul = uls[0]
+            elif datetime[1] == "Night":
+                ul = uls[-1]
             else:
-                ul = b.parent.parent.findAll("ul")[1]
+                continue
             for li in ul.findAll("li"):
                 element = li.find("span", {
                     "class": "_-_-components-src-molecule-DaypartDetails-DetailsTable-DetailsTable--value--2YD0-"})
@@ -63,3 +66,7 @@ def get_weather(Latitude, Longitude):
         "forecast": days_forecast_10,
         "area": area
     }
+"""
+import json
+print(json.dumps(get_weather("23.5", "121.3")))
+"""

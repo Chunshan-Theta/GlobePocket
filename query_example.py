@@ -76,7 +76,7 @@ class StageQueryLocation(Stage):
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
                     ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
-                    ("CPT", (place_geo_lat,place_geo_lng))
+                    ("CPT", (place_geo_lat,place_geo_lng,datetime.datetime.strptime(orders[sender_id]["date"],"%m/%d")))
                 ]
             })
         else:
@@ -145,7 +145,10 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
-                bot_helper.send_text_message(recipient_id=user_id,message=weather)
+                week = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+                date_day = a[1][2].strftime("%d")
+                date_lable = f"{week[a[1][2].weekday()]} {date_day}"
+                bot_helper.send_text_message(recipient_id=user_id,message=str(weather['forecast'][date_lable]))
 
     #
     print(f"Client: {received_text}")
