@@ -2,8 +2,9 @@ from fb_message_bot.fb_helper import FbHelperBot
 from fb_message_bot.fb_quickreply import FbQuickReplyElement, FbQuickReply
 from google_helper import get_place_by_text, get_weather
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
-from util.message import string_unknown_default,re_search_from_ins,string_search_from_ins,string_query_default,string_query_get_date,string_query_location,\
-    string_query_get_location,string_query_order_completed,string_not_found_location
+from util.message import string_unknown_default, re_search_from_ins, string_search_from_ins, string_query_default, \
+    string_query_get_date, string_query_location, \
+    string_query_get_location, string_query_order_completed, string_not_found_location, string_forcast
 import datetime
 import re
 
@@ -155,11 +156,21 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 date_day = a[1][2].strftime("%d")
                 date_lable = f"{week[a[1][2].weekday()]} {date_day}"
                 if local_mode:
-                    print(f"BOT:當天{date}白天 {str(weather['forecast'][date_lable]['Day'])}")
-                    print(f"BOT:當天{date}晚上 {str(weather['forecast'][date_lable]['Night'])}")
+                    if 'Day' in weather['forecast'][date_lable]:
+                        detail_weather = str(weather['forecast'][date_lable]['Day'])
+                        print(string_forcast.msg().format(date=date,time="白天",detail=detail_weather))
+                    if 'Night' in weather['forecast'][date_lable]:
+                        detail_weather = str(weather['forecast'][date_lable]['Night'])
+                        print(string_forcast.msg().format(date=date, time="晚上", detail=detail_weather))
                 else:
-                    bot_helper.send_text_message(recipient_id=user_id,message=f"BOT:當天{date}白天 {str(weather['forecast'][date_lable]['Day'])}")
-                    bot_helper.send_text_message(recipient_id=user_id,message=f"BOT:當天{date}晚上 {str(weather['forecast'][date_lable]['Night'])}")
+                    if 'Day' in weather['forecast'][date_lable]:
+                        detail_weather = str(weather['forecast'][date_lable]['Day'])
+                        msg = string_forcast.msg().format(date=date, time="白天", detail=detail_weather)
+                        bot_helper.send_text_message(recipient_id=user_id, message=msg)
+                    if 'Night' in weather['forecast'][date_lable]:
+                        detail_weather = str(weather['forecast'][date_lable]['Night'])
+                        msg = string_forcast.msg().format(date=date, time="晚上", detail=detail_weather)
+                        bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
     #
     print(f"Client: {received_text}")
