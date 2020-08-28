@@ -2,5 +2,5 @@ import googletrans
 
 translator = googletrans.Translator()
 
-def enzh(text):
-    return str(translator.translate(text, src="en", dest="zh-tw"))
+def enzh(msg):
+    return translator.translate(msg, src="en", dest="zh-tw").text
