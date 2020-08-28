@@ -1,6 +1,6 @@
 from fb_message_bot.fb_helper import FbHelperBot
 from fb_message_bot.fb_quickreply import FbQuickReplyElement, FbQuickReply
-from google_helper import get_place_by_text, get_weather
+from google_helper import get_place_by_text, get_weather,translate
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
 from util.message import string_unknown_default, re_search_from_ins, string_search_from_ins, string_query_default, \
     string_query_get_date, string_query_location, \
@@ -130,12 +130,18 @@ class StageQueryDefaultSwitch(Stage):
 
             })
 
+
 def weather_forcast_decoder(json_obj:dict) -> str:
     respond_str = ""
     for k, v in json_obj.items():
-        respond_str += f"{k}: {v} \n"
+        if k == 'content':
+            respond_str += f"{k}: {translate.enzh(v)} \n"
+        else:
+            respond_str += f"{k}: {v} \n"
 
     return respond_str
+
+
 def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None,local_mode=False):
 
     def bot_actions(res: RunResult):
