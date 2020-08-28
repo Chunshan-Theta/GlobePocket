@@ -143,15 +143,17 @@ def weather_forcast_decoder(json_obj:dict) -> str:
         "SunsetTime":"日落時間",
     }
     respond_str = ""
+    content_temp = None
     for k, v in json_obj.items():
         if k == 'content':
-            respond_str += f"{k}: {translate.enzh(v)} \n"
+            content_temp= f"天氣簡評: {translate.enzh(v)} \n"
         else:
             if k in k_label:
                 respond_str += f"{k_label[k]}: {v} \n"
             else:
                 respond_str += f"{k}: {v} \n"
-
+    if content_temp is not None:
+        respond_str += content_temp
     return respond_str
 
 
