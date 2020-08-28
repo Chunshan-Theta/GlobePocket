@@ -132,12 +132,25 @@ class StageQueryDefaultSwitch(Stage):
 
 
 def weather_forcast_decoder(json_obj:dict) -> str:
+    k_label = {
+        "TemperatureValue":"氣溫",
+        "PercentageValue":"下雨機率",
+        "Wind":"風速",
+        "UVIndexValue":"紫外線",
+        "MoonriseTime":"月升時間",
+        "MoonsetTime":"月落時間",
+        "SunriseTime":"日出時間",
+        "SunsetTime":"日落時間",
+    }
     respond_str = ""
     for k, v in json_obj.items():
         if k == 'content':
             respond_str += f"{k}: {translate.enzh(v)} \n"
         else:
-            respond_str += f"{k}: {v} \n"
+            if k in k_label:
+                respond_str += f"{k_label[k]}: {v} \n"
+            else:
+                respond_str += f"{k}: {v} \n"
 
     return respond_str
 
