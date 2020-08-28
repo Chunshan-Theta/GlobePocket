@@ -130,7 +130,12 @@ class StageQueryDefaultSwitch(Stage):
 
             })
 
+def weather_forcast_decoder(json_obj:dict) -> str:
+    respond_str = ""
+    for k, v in json_obj.items():
+        respond_str += f"{k}: {v} \n"
 
+    return respond_str
 def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None,local_mode=False):
 
     def bot_actions(res: RunResult):
@@ -157,18 +162,18 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 date_lable = f"{week[a[1][2].weekday()]} {date_day}"
                 if local_mode:
                     if 'Day' in weather['forecast'][date_lable]:
-                        detail_weather = str(weather['forecast'][date_lable]['Day'])
-                        print(string_forcast.msg().format(date=date,time="白天",detail=detail_weather))
+                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Day'])
+                        print(string_forcast.msg().format(date=date, time="白天", detail=detail_weather))
                     if 'Night' in weather['forecast'][date_lable]:
-                        detail_weather = str(weather['forecast'][date_lable]['Night'])
+                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Night'])
                         print(string_forcast.msg().format(date=date, time="晚上", detail=detail_weather))
                 else:
                     if 'Day' in weather['forecast'][date_lable]:
-                        detail_weather = str(weather['forecast'][date_lable]['Day'])
+                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Day'])
                         msg = string_forcast.msg().format(date=date, time="白天", detail=detail_weather)
                         bot_helper.send_text_message(recipient_id=user_id, message=msg)
                     if 'Night' in weather['forecast'][date_lable]:
-                        detail_weather = str(weather['forecast'][date_lable]['Night'])
+                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Night'])
                         msg = string_forcast.msg().format(date=date, time="晚上", detail=detail_weather)
                         bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
