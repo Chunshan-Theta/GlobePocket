@@ -66,6 +66,7 @@ class StageQueryLocation(Stage):
             # 蒐集到地點
             place = places["candidates"][0]
             place_name = place['name']
+            place_types = place['types']
             place_geo_lat = place['geometry']['location']['lat']
             place_geo_lng = place['geometry']['location']['lng']
             orders[sender_id]["location"] = place_name
@@ -77,7 +78,7 @@ class StageQueryLocation(Stage):
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
                     ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
-                    ("CPT", (place_geo_lat,place_geo_lng,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d")))
+                    ("CPT", (place_geo_lat,place_geo_lng,place_types,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d")))
                 ]
             })
         else:
@@ -131,18 +132,21 @@ class StageQueryDefaultSwitch(Stage):
             })
 
 
-def weather_forcast_decoder(json_obj:dict) -> str:
+def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
     def F2C(F):
         return round(float(F-273.15),2)
-    k_label = {'pressure': '氣壓', 'humidity': '濕度', 'dew_point': '露點', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率', 'pop': '降雨機率', 'rain': '降雨量', 'uvi': '紫外線'}
+    k_label = {'pressure': '氣壓', 'humidity': '濕度', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率(%)', 'pop': '降雨機率(%)', 'rain': '降雨量(mm)', 'uvi': '紫外線'}
+
     respond_str = ""
     content_temp = None
     for k, v in json_obj.items():
-        if k == 'content':
-            content_temp= f"天氣簡評: {translate.enzh(v)} \n"
+        if k == 'weather':
+            content_temp = f"天氣簡評: {translate.enzh(v[0]['description'])} \n"
         elif k == 'temp':
-            respond_str += f"白天溫度: {F2C(v['day'])} \n"
-            respond_str += f"晚上溫度: {F2C(v['night'])} \n"
+            respond_str += f"白天溫度(度): {F2C(v['day'])} \n"
+            respond_str += f"晚上溫度(度): {F2C(v['night'])} \n"
+        elif k == 'dew_point':
+            respond_str += f"露點(度): {F2C(v)} \n"
         else:
             if k in k_label:
                 respond_str += f"{k_label[k]}: {v} \n"
@@ -173,9 +177,10 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
-                date_lable = a[1][2].strftime("%m/%d")
+                location_types = a[1][2]
+                date_lable = a[1][3].strftime("%m/%d")
                 if local_mode:
-                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable])
+                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable],location_types)
                     print(string_forcast.msg().format(date=date_lable, detail=detail_weather))
 
                 else:
@@ -210,11 +215,11 @@ base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
 """
-base_massager_handler(received_text = "hihi")
+base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "20/08/29")
+base_massager_handler(received_text = "20/08/29",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "板橋車站")
+base_massager_handler(received_text = "板橋車站",local_mode=True)
 """
 """
 print("-"*20)
