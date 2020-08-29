@@ -1,3 +1,5 @@
+import datetime
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -6,16 +8,25 @@ def get_place_by_text(text) -> dict:
     places = google_map_responds.json()
     return places
 
-
 def get_weather(Latitude, Longitude):
-    content = requests.get(
-        f"https://weather.com/weather/tenday/l/{Latitude},{Longitude}?par=google&temp=c&visibilityState=true")
-    htmlsoup = BeautifulSoup(content.text, 'html.parser')
+    weather = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat={Latitude}&lon={Longitude}&appid=a8f1a35148b9d49f4bd8d2fa2a9d5764").json()
 
+    return {
+        "forecast": {(datetime.datetime.today()+datetime.timedelta(days=idx)).strftime("%m/%d"): val for idx,val in enumerate(weather['daily'])}
+    }
+
+def get_weather_dep(Latitude, Longitude):
+    content = requests.get(
+        f"https://weather.com/weather/tenday/l/{Latitude},{Longitude}?par=google")
+    htmlsoup = BeautifulSoup(content.text, 'html.parser')
+    print(content.text)
     # area
-    title_area = htmlsoup.findAll("h1", {
-        "class": "_-_-components-src-atom-LocationPageTitle-LocationPageTitle--PageHeader--JBu5- _-_-components-src-organism-DailyForecast-DailyForecast--CardHeader--3ATQ0"})
-    area = title_area[0].findAll('span')[0].text[1:]
+    class_name = "_-_-components-src-molecule-DaypartDetails-DaypartDetails--Content--2Yg3_ _-_-components-src-molecule-DaypartDetails-DaypartDetails--contentGrid--2_szQ"
+
+    area = htmlsoup.findAll("h1", {"class": class_name})
+    #area = title_area[0].findAll('span')[0].text[1:]
+
+    area = None
 
     #
     class_name = "_-_-components-src-molecule-DaypartDetails-DaypartDetails--Content--2Yg3_ _-_-components-src-molecule-DaypartDetails-DaypartDetails--contentGrid--2_szQ"

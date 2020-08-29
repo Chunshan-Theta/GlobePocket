@@ -132,26 +132,22 @@ class StageQueryDefaultSwitch(Stage):
 
 
 def weather_forcast_decoder(json_obj:dict) -> str:
-    k_label = {
-        "TemperatureValue":"氣溫",
-        "PercentageValue":"下雨機率",
-        "Wind":"風速",
-        "UVIndexValue":"紫外線",
-        "MoonriseTime":"月升時間",
-        "MoonsetTime":"月落時間",
-        "SunriseTime":"日出時間",
-        "SunsetTime":"日落時間",
-    }
+    def F2C(F):
+        return round(float(F-273.15),2)
+    k_label = {'pressure': '氣壓', 'humidity': '濕度', 'dew_point': '露點', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率', 'pop': '降雨機率', 'rain': '降雨量', 'uvi': '紫外線'}
     respond_str = ""
     content_temp = None
     for k, v in json_obj.items():
         if k == 'content':
             content_temp= f"天氣簡評: {translate.enzh(v)} \n"
+        elif k == 'temp':
+            respond_str += f"白天溫度: {F2C(v['day'])} \n"
+            respond_str += f"晚上溫度: {F2C(v['night'])} \n"
         else:
             if k in k_label:
                 respond_str += f"{k_label[k]}: {v} \n"
             else:
-                respond_str += f"{k}: {v} \n"
+                pass#respond_str += f"{k}: {v} \n"
     if content_temp is not None:
         respond_str += content_temp
     return respond_str
@@ -177,26 +173,15 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
-                week = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-                date = a[1][2].strftime("%m/%d")
-                date_day = a[1][2].strftime("%d")
-                date_lable = f"{week[a[1][2].weekday()]} {date_day}"
+                date_lable = a[1][2].strftime("%m/%d")
                 if local_mode:
-                    if 'Day' in weather['forecast'][date_lable]:
-                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Day'])
-                        print(string_forcast.msg().format(date=date, time="白天", detail=detail_weather))
-                    if 'Night' in weather['forecast'][date_lable]:
-                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Night'])
-                        print(string_forcast.msg().format(date=date, time="晚上", detail=detail_weather))
+                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable])
+                    print(string_forcast.msg().format(date=date_lable, detail=detail_weather))
+
                 else:
-                    if 'Day' in weather['forecast'][date_lable]:
-                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Day'])
-                        msg = string_forcast.msg().format(date=date, time="白天", detail=detail_weather)
-                        bot_helper.send_text_message(recipient_id=user_id, message=msg)
-                    if 'Night' in weather['forecast'][date_lable]:
-                        detail_weather = weather_forcast_decoder(weather['forecast'][date_lable]['Night'])
-                        msg = string_forcast.msg().format(date=date, time="晚上", detail=detail_weather)
-                        bot_helper.send_text_message(recipient_id=user_id, message=msg)
+                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable])
+                    msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
+                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
     #
     print(f"Client: {received_text}")
@@ -224,13 +209,13 @@ print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
-"""
+
 base_massager_handler(received_text = "hihi")
 print("-"*20)
 base_massager_handler(received_text = "20/08/29")
 print("-"*20)
 base_massager_handler(received_text = "板橋車站")
-"""
+
 """
 print("-"*20)
 base_massager_handler(received_text = "hihi")
