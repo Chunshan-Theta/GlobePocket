@@ -204,7 +204,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
 
 
 def get_10_day() -> FbQuickReply:
-    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%y/%m/%d"), payload="choices Red") for i in range(0,10)]
+    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%y/%m/%d"), payload="choices Red") for i in range(0,7)]
     FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
     return FbQuickReply_date_arr
 
