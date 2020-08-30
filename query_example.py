@@ -5,6 +5,7 @@ from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenP
 from util.message import string_unknown_default, re_search_from_ins, string_search_from_ins, string_query_default, \
     string_query_get_date, string_query_location, \
     string_query_get_location, string_query_order_completed, string_not_found_location, string_forcast
+from util.score import default_board
 import datetime
 import re
 
@@ -143,8 +144,8 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
         if k == 'weather':
             content_temp = f"天氣簡評: {translate.enzh(v[0]['description'])} \n"
         elif k == 'temp':
-            respond_str += f"白天溫度(度): {F2C(v['day'])} \n"
-            respond_str += f"晚上溫度(度): {F2C(v['night'])} \n"
+            respond_str += f"白天溫度(度): {F2C(v['max'])} \n"
+            respond_str += f"晚上溫度(度): {F2C(v['min'])} \n"
         elif k == 'dew_point':
             respond_str += f"露點(度): {F2C(v)} \n"
         else:
@@ -154,6 +155,25 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
                 pass#respond_str += f"{k}: {v} \n"
     if content_temp is not None:
         respond_str += content_temp
+
+    json_obj.update({"temp": F2C(json_obj['temp']['eve'])})
+
+    ##
+    score_obj = default_board.computer(place_detail=json_obj, cause_detail_option=True)
+
+    ##
+    worse = score_obj['worse']
+    print(worse)
+    respond_str+="\n"
+    for i in range(2):
+        respond_str += f"糟糕項目『{k_label[worse[i][1][0]]}』: {worse[i][1][1]} \n"
+
+    ##
+    score = score_obj['score']
+    score_detail = score_obj['detail']
+    print(score_detail)
+    respond_str += f"\n本日評分: {score*10} of 10 \n"
+
     return respond_str
 
 
@@ -217,9 +237,9 @@ print("-"*20)
 """
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "20/08/29",local_mode=True)
+base_massager_handler(received_text = "20/08/30",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "板橋車站",local_mode=True)
+base_massager_handler(received_text = "板橋",local_mode=True)
 """
 """
 print("-"*20)
