@@ -37,13 +37,14 @@ class ScoreBoard:
 
     @staticmethod
     def worce_cause(obj:dict):
-        def sort_by_key(obj: dict):
-            return [(k, obj[k]) for k in sorted(obj.keys())]
-        source_list = {}
+        def sort_by_key(obj: [tuple]):
+            sorted_by_second = sorted(obj, key=lambda tup: tup[0])
+            return sorted_by_second
+        source_list = []
         for k, v in obj.items():
             got_score = v['score']/v['weight']+v['weight']
             source_val = v['source_val']
-            source_list[got_score] = (k, source_val)
+            source_list.append(tuple([got_score,k, source_val]))
 
         return sort_by_key(source_list)
 
@@ -85,9 +86,9 @@ example_board =ScoreBoard(items={
     "temp": (0.4, [1, 8, 16, 24, 31, 35], ScoreBoard.in_threshold)
 })
 default_board =ScoreBoard(items={
-    "pop": (0.2, [0.3, 0.5, 0.9], ScoreBoard.lesser_threshold),
-    "rain": (0.3, [3, 10, 15, 25], ScoreBoard.lesser_threshold),
-    "uvi": (0.2, [3, 6, 8, 10], ScoreBoard.lesser_threshold),
-    "temp": (0.3, [0, 6, 14, 29, 33, 37], ScoreBoard.in_threshold)
+    "pop": (0.25, [0.3, 0.5, 0.9], ScoreBoard.lesser_threshold),
+    "rain": (0.35, [3, 10, 15, 25], ScoreBoard.lesser_threshold),
+    "uvi": (0.15, [3, 6, 8, 10], ScoreBoard.lesser_threshold),
+    "temp": (0.25, [0, 6, 14, 29, 33, 37], ScoreBoard.in_threshold)
 })
 #print(example_board.computer(example_place_detail,cause_detail_option=True))

@@ -172,8 +172,8 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> (str, int):
     worse = score_obj['worse']
     respond_str+="\n"
 
-    for i in range(2):
-        respond_str += f"糟糕項目No.{i+1}『{k_label[worse[i][1][0]]}』: {worse[i][1][1]} \n"
+    for i in range(int(len(worse)/2)):
+        respond_str += f"糟糕項目No.{i+1}『{k_label[worse[i][1]]}』: {worse[i][2]} \n"
 
     ##
     score = score_obj['score']
@@ -222,6 +222,20 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable])
                     msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
                     bot_helper.send_text_message(recipient_id=user_id, message=msg)
+                    #
+                    detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable].copy(), location_types)
+                    msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
+                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
+                    #
+                    re_date, re_score = 0, 0
+                    for k, v in weather['forecast'].items():
+                        temp_detail_weather, score = weather_forcast_decoder(v, location_types)
+                        if score > re_score:
+                            re_score = score
+                            re_date = k
+                            re_detail = temp_detail_weather
+                    msg = string_premote_day.msg().format(date=re_date, detail=re_detail)
+                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
             elif a[0] == "CPT_adv":
                 weather = get_weather(a[1][0], a[1][1])
@@ -262,13 +276,13 @@ print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
-
+"""
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "20/08/30",local_mode=True)
+base_massager_handler(received_text = "20/08/31",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "龍山寺",local_mode=True)
-
+"""
 """
 print("-"*20)
 base_massager_handler(received_text = "hihi")
