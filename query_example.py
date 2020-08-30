@@ -136,18 +136,24 @@ class StageQueryDefaultSwitch(Stage):
 def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
     def F2C(F):
         return round(float(F-273.15),2)
-    k_label = {'pressure': '氣壓', 'humidity': '濕度', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率(%)', 'pop': '降雨機率(%)', 'rain': '降雨量(mm)', 'uvi': '紫外線'}
+    k_label = {'pressure': '氣壓', 'humidity': '濕度', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率(%)', 'rain': '降雨量(mm)', 'uvi': '紫外線'}
 
     respond_str = ""
     content_temp = None
     for k, v in json_obj.items():
         if k == 'weather':
             content_temp = f"天氣簡評: {translate.enzh(v[0]['description'])} \n"
+            k_label.update({"description":"天氣簡評"})
         elif k == 'temp':
             respond_str += f"白天溫度(度): {F2C(v['max'])} \n"
             respond_str += f"晚上溫度(度): {F2C(v['min'])} \n"
+            k_label.update({"temp": "溫度(度)"})
+        elif k == 'pop':
+            respond_str += f"降雨機率(%): {v*100} \n"
+            k_label.update({"pop": "降雨機率(%)"})
         elif k == 'dew_point':
             respond_str += f"露點(度): {F2C(v)} \n"
+            k_label.update({"dew_point": "露點(度)"})
         else:
             if k in k_label:
                 respond_str += f"{k_label[k]}: {v} \n"
@@ -163,10 +169,10 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
 
     ##
     worse = score_obj['worse']
-    print(worse)
     respond_str+="\n"
+    print()
     for i in range(2):
-        respond_str += f"糟糕項目『{k_label[worse[i][1][0]]}』: {worse[i][1][1]} \n"
+        respond_str += f"糟糕項目No.{i+1}『{k_label[worse[i][1][0]]}』: {worse[i][1][1]} \n"
 
     ##
     score = score_obj['score']
@@ -223,8 +229,8 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
     bot_action_decode(bot_actions)
 
 
-def get_10_day() -> FbQuickReply:
-    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%y/%m/%d"), payload="choices Red") for i in range(0,7)]
+def get_10_day(count=7) -> FbQuickReply:
+    date_arr = [FbQuickReplyElement(title=(datetime.datetime.today()+datetime.timedelta(days=i)).strftime("%y/%m/%d"), payload="choices Red") for i in range(0,count)]
     FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
     return FbQuickReply_date_arr
 
@@ -234,13 +240,13 @@ print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
-"""
+
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "20/08/30",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "板橋",local_mode=True)
-"""
+base_massager_handler(received_text = "龍山寺",local_mode=True)
+
 """
 print("-"*20)
 base_massager_handler(received_text = "hihi")
