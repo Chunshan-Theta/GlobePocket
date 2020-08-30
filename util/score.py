@@ -82,14 +82,14 @@ example_place_detail = {
     "temp": 18
 }
 example_board =ScoreBoard(items={
-    "rain": (0.1, [0.3, 0.6, 0.8], ScoreBoard.lesser_threshold),
+    "rain": (0.1, [0.4, 0.7, 0.9], ScoreBoard.lesser_threshold),
     "see": (0.5, [10, 20, 25], ScoreBoard.greater_threshold),
     "temp": (0.4, [1, 8, 16, 24, 31, 35], ScoreBoard.in_threshold)
 })
 default_board =ScoreBoard(items={
-    "pop": (0.2, [0.3, 0.6, 0.8], ScoreBoard.lesser_threshold),
+    "pop": (0.2, [0.38, 0.7, 0.9], ScoreBoard.lesser_threshold),
     "rain": (0.3, [3,10,25,50,100,150,200,250], ScoreBoard.lesser_threshold),
-    "uvi": (0.1, [3, 5, 7, 10], ScoreBoard.lesser_threshold),
+    "uvi": (0.1, [3, 6, 8, 10], ScoreBoard.lesser_threshold),
     "temp": (0.4, [1, 8, 16, 24, 31, 35], ScoreBoard.in_threshold)
 })
 #print(example_board.computer(example_place_detail,cause_detail_option=True))

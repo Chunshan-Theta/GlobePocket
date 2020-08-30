@@ -172,7 +172,7 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
     score = score_obj['score']
     score_detail = score_obj['detail']
     print(score_detail)
-    respond_str += f"\n本日評分: {score*10} of 10 \n"
+    respond_str += f"\n本日評分: {int(score*10)} of 10 \n"
 
     return respond_str
 
