@@ -180,7 +180,7 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> (str, int):
     score_detail = score_obj['detail']
     respond_str += f"\n本日評分: {int(score*10)} of 10 \n"
 
-    return respond_str, int(score*10)
+    return translate.zhen(respond_str), int(score*10)
 
 
 def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None,local_mode=False):
