@@ -40,14 +40,12 @@ class ScoreBoard:
         def sort_by_key(obj: dict):
             return [(k, obj[k]) for k in sorted(obj.keys())]
         source_list = {}
-        for k,v in obj.items():
-            got_score = v['score']
+        for k, v in obj.items():
+            got_score = v['score']/v['weight']+v['weight']
             source_val = v['source_val']
-            source_list[got_score]= (k,source_val)
+            source_list[got_score] = (k, source_val)
 
         return sort_by_key(source_list)
-
-
 
     def computer(self,place_detail:dict,cause_detail_option=False):
         score = 0
@@ -88,7 +86,7 @@ example_board =ScoreBoard(items={
 })
 default_board =ScoreBoard(items={
     "pop": (0.2, [0.38, 0.7, 0.9], ScoreBoard.lesser_threshold),
-    "rain": (0.3, [3,10,25,50,100,150,200,250], ScoreBoard.lesser_threshold),
+    "rain": (0.3, [3, 10, 25, 50, 100, 150, 200, 250], ScoreBoard.lesser_threshold),
     "uvi": (0.1, [3, 6, 8, 10], ScoreBoard.lesser_threshold),
     "temp": (0.4, [1, 8, 16, 24, 31, 35], ScoreBoard.in_threshold)
 })
