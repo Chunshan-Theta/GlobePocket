@@ -4,7 +4,7 @@ from google_helper import get_place_by_text, get_weather,translate
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
 from util.message import string_unknown_default, re_search_from_ins, string_search_from_ins, string_query_default, \
     string_query_get_date, string_query_location, \
-    string_query_get_location, string_query_order_completed, string_not_found_location, string_forcast
+    string_query_get_location, string_query_order_completed, string_not_found_location, string_forcast, string_premote_day
 from util.score import default_board
 import datetime
 import re
@@ -133,7 +133,7 @@ class StageQueryDefaultSwitch(Stage):
             })
 
 
-def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
+def weather_forcast_decoder(json_obj:dict,location_types=None) -> (str, int):
     def F2C(F):
         return round(float(F-273.15),2)
     k_label = {'pressure': '氣壓', 'humidity': '濕度', 'wind_speed': '風速', 'wind_deg': '風級數',  'clouds': '雲覆蓋率(%)', 'rain': '降雨量(mm)', 'uvi': '紫外線'}
@@ -154,6 +154,7 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
         elif k == 'dew_point':
             respond_str += f"露點(度): {F2C(v)} \n"
             k_label.update({"dew_point": "露點(度)"})
+
         else:
             if k in k_label:
                 respond_str += f"{k_label[k]}: {v} \n"
@@ -170,17 +171,16 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> str:
     ##
     worse = score_obj['worse']
     respond_str+="\n"
-    print()
+
     for i in range(2):
         respond_str += f"糟糕項目No.{i+1}『{k_label[worse[i][1][0]]}』: {worse[i][1][1]} \n"
 
     ##
     score = score_obj['score']
     score_detail = score_obj['detail']
-    print(score_detail)
     respond_str += f"\n本日評分: {int(score*10)} of 10 \n"
 
-    return respond_str
+    return respond_str, int(score*10)
 
 
 def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper: FbHelperBot=None,local_mode=False):
@@ -206,11 +206,33 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 location_types = a[1][2]
                 date_lable = a[1][3].strftime("%m/%d")
                 if local_mode:
-                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable],location_types)
+                    detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable].copy(), location_types)
+                    print(string_forcast.msg().format(date=date_lable, detail=detail_weather))
+                    #
+                    re_date, re_score = 0,0
+                    for k, v in weather['forecast'].items():
+                        temp_detail_weather, score = weather_forcast_decoder(v, location_types)
+                        if score > re_score:
+                            re_score = score
+                            re_date = k
+                            re_detail = temp_detail_weather
+                    print(string_premote_day.msg().format(date=re_date,detail=re_detail))
+
+                else:
+                    detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable])
+                    msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
+                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
+
+            elif a[0] == "CPT_adv":
+                weather = get_weather(a[1][0], a[1][1])
+                location_types = a[1][2]
+                date_lable = a[1][3].strftime("%m/%d")
+                if local_mode:
+                    detail_weather, score = weather_forcast_decoder(weather['forecast'][date_lable], location_types)
                     print(string_forcast.msg().format(date=date_lable, detail=detail_weather))
 
                 else:
-                    detail_weather = weather_forcast_decoder(weather['forecast'][date_lable])
+                    detail_weather, score = weather_forcast_decoder(weather['forecast'][date_lable])
                     msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
                     bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
@@ -240,13 +262,13 @@ print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
-"""
+
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "20/08/30",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "龍山寺",local_mode=True)
-"""
+
 """
 print("-"*20)
 base_massager_handler(received_text = "hihi")

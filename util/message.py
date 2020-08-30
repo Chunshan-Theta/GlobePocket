@@ -25,3 +25,4 @@ string_query_get_location = Massage(zh="您好，我已經了解您要前往『{
 string_query_order_completed= Massage(zh="您好，我已經了解您要在『{date}』的時候前往『{location}』")
 string_not_found_location = Massage(zh="您好，我找不到『{text}』")
 string_forcast = Massage(zh="當天{date}的天氣如下： \n{detail}")
+string_premote_day = Massage(zh="七天內最推薦的日期為{date}\n該日天氣如下： \n{detail}")
