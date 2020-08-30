@@ -19,7 +19,7 @@ re_search_from_ins = Massage(zh=".?搜尋(:|：).?",
                              en=".?(search|find):.?")
 
 string_query_default = Massage(zh="您好，最近有要安排哪個時間旅遊嗎？",
-                               en="Hi! When do you want to travel.")
+                               en="Hi! When do you want to travel?")
 string_query_location= Massage(zh="請問地點是？",en="Where do you want to go?")
 string_query_get_date = Massage(zh="您好，我已經了解您是要在『{text}』的時候旅遊",en="HI，I got you want to travel in『{text}』")
 string_query_get_location = Massage(zh="您好，我已經了解您要前往『{text}』",en="HI，I got you want to travel to『{text}』")
