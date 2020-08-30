@@ -219,13 +219,11 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     print(string_premote_day.msg().format(date=re_date,detail=re_detail))
 
                 else:
-                    detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable])
-                    msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
-                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
                     #
                     detail_weather, _ = weather_forcast_decoder(weather['forecast'][date_lable].copy(), location_types)
                     msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
                     bot_helper.send_text_message(recipient_id=user_id, message=msg)
+
                     #
                     re_date, re_score = 0, 0
                     for k, v in weather['forecast'].items():
@@ -237,18 +235,6 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     msg = string_premote_day.msg().format(date=re_date, detail=re_detail)
                     bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
-            elif a[0] == "CPT_adv":
-                weather = get_weather(a[1][0], a[1][1])
-                location_types = a[1][2]
-                date_lable = a[1][3].strftime("%m/%d")
-                if local_mode:
-                    detail_weather, score = weather_forcast_decoder(weather['forecast'][date_lable], location_types)
-                    print(string_forcast.msg().format(date=date_lable, detail=detail_weather))
-
-                else:
-                    detail_weather, score = weather_forcast_decoder(weather['forecast'][date_lable])
-                    msg = string_forcast.msg().format(date=date_lable, detail=detail_weather)
-                    bot_helper.send_text_message(recipient_id=user_id, message=msg)
 
     #
     print(f"Client: {received_text}")
