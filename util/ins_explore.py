@@ -21,7 +21,7 @@ def demo(lst: list, n_components=5, top_w=10):
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=0.1, min_df=0.05, stop_words="english")
+    cv = CountVectorizer(max_df=10, min_df=2, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
@@ -78,6 +78,7 @@ def get_ins_post_text(text: str) -> (list, list):
     return edges, temp_arr
 
 def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
+    text.replace(" ","%20")
     url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}&sort=date"
     url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}"
     temp_text_arr = []
