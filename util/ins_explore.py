@@ -126,6 +126,7 @@ def export_spot(location="烏來"):
             #
             try:
                 post_text = p['description']
+                content = p['content']
                 url = p['url']
                 thumbnail_src = p['media']
                 author = p['author']
@@ -136,7 +137,7 @@ def export_spot(location="烏來"):
                     "post_text": post_text,
                     "thumbnail_src": thumbnail_src,
                     "accessibility_caption": author,
-                    "title": f"{title} {author} {post_text}",
+                    "title": f"{content} {author} ",
                     "media": thumbnail_src,
                     "url": f"{url}",
                 })
