@@ -108,6 +108,8 @@ def get_ins_from_google_search(text: str) -> (list, list):
             })
         except IndexError:
             pass
+        except KeyError:
+            pass
     return temp_pic_arr, temp_text_arr
 
 def export_spot(location="烏來"):
