@@ -1,8 +1,10 @@
+import requests
 import requests as rq
 
 # 使用scikit-learn進行向量轉換
 # 忽略在文章中佔了90%的文字(即去除高頻率字彙)
 # 文字至少出現在2篇文章中才進行向量轉換
+from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 
@@ -150,8 +152,20 @@ def export_spot(location="烏來"):
 
     return topics_dict
 
+def ins_get_pic_by_short_code(code='B7WLKhlDn_p'):
+    content = requests.get(f"https://www.instagram.com/p/{code}/")
+    htmlsoup = BeautifulSoup(content.text, 'html.parser')
+    #print(content.text)
+
+    pics = htmlsoup.findAll("meta", {"property": "og:image"})
+    #print(pics)
+    return pics[0].get("content")
 """
 import json
 
 print(json.dumps(export_spot(location="龍山寺")))
+
+
+
+print(ins_get_pic_by_short_code())
 """

@@ -2,6 +2,7 @@
 from fb_message_bot.fb_attachment import AttachmentGeneric, AttachmentGenericPayloadElements
 from fb_message_bot.fb_button import FbButtomPostBack,FbButtomURL
 from fb_message_bot.fb_quickreply import FbQuickReply, FbQuickReplyElement
+from util.ins_explore import ins_get_pic_by_short_code
 from util.search_pic import pic_set_obj
 
 
@@ -25,8 +26,10 @@ def make_attachment_generic(pics_obj:pic_set_obj,bot=None):
         normal_btn_set = list()
         normal_btn_set.append(FbButtomURL(url=p['url'], title="觀看貼文"))
 
-        Element = AttachmentGenericPayloadElements(title=p["title"], subtitle=f"圖片來源:{p['url']}", image_url=p['media'],
-                                                    default_url=p['url'], buttons=normal_btn_set,fallback_url=p['media'])
+        #
+        new_pic_url = ins_get_pic_by_short_code(p['shortcode'])
+        Element = AttachmentGenericPayloadElements(title=p["title"], subtitle=f"圖片來源:{p['url']}", image_url=new_pic_url,
+                                                    default_url=p['url'], buttons=normal_btn_set,fallback_url=new_pic_url)
         pic_sets.append(Element)
 
     """
