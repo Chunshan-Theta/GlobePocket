@@ -36,7 +36,7 @@ class StageQueryInsPostCollention(Stage):
         # 完成訂單
         orders[sender_id]["status"] = "completed"
         if text == 'yes':
-            location = orders[sender_id]["location"]
+            location = orders[sender_id]["source_location"]
             return RunResult(success=True, label="RepeatText", body={
                 "bot_actions": [
                     ("QINS", location)
@@ -93,6 +93,7 @@ class StageQueryLocation(Stage):
             place_geo_lat = place['geometry']['location']['lat']
             place_geo_lng = place['geometry']['location']['lng']
             orders[sender_id]["location"] = place_name
+            orders[sender_id]["source_location"] = text
             orders[sender_id]["location_geo"] = (place_geo_lat,place_geo_lng)
 
             return RunResult(success=True, label="StageQueryLocation", body={

@@ -87,6 +87,7 @@ def get_ins_from_google_search(text: str) -> (list, list):
         try:
             url = e['link']
             snippet = e['snippet']
+            title = e[title]
             shortcode = url[url.find('/p/')+3:url.find('/',url.find('/p/')+3)]
             description = e['pagemap']['metatags'][0]['og:description']
             source_content_post = description[description.find(":")+1:]
@@ -101,6 +102,7 @@ def get_ins_from_google_search(text: str) -> (list, list):
                 "media":image_post,
                 "content":content_post,
                 "author":author,
+                "title":title
             })
         except IndexError:
             pass
@@ -121,12 +123,13 @@ def export_spot(location="烏來"):
                 thumbnail_src = p['media']
                 author = p['author']
                 shortcode = p['shortcode']
+                title = p['title']
                 list_posts.append({
                     "shortcode":shortcode,
                     "post_text": post_text,
                     "thumbnail_src": thumbnail_src,
                     "accessibility_caption": author,
-                    "title": F"{author} {post_text}",
+                    "title": F"{title} {author} {post_text}",
                     "media": thumbnail_src,
                     "url": f"{url}",
                 })
