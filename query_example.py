@@ -238,7 +238,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                 location = a[2]
                 if local_mode:
                     print(f"資料處理中...")
-                    posts_collection = export_spot(location=f"\"{location_source}\" {location}")
+                    posts_collection = export_spot(location=f"{location_source} {location}")
 
                     for k, v in posts_collection.items():
                         if len(v)<1:
@@ -258,7 +258,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
 
                 else:
                     bot_helper.send_text_message(recipient_id=user_id,message=f"資料處理中...")
-                    posts_collection = export_spot(location=f"\"{location_source}\" {location}")
+                    posts_collection = export_spot(location=f"{location_source} {location}")
                     for k, v in posts_collection.items():
 
                         temp_pic_list = list()
