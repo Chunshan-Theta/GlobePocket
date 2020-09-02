@@ -87,8 +87,12 @@ def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
     try:
         edges = json_obj['items']
     except KeyError as e:
-        print(json_obj)
-        raise e
+        try:
+            url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyBinwEHB0IW80b1G9KmHuEA0zVHbUH_lrg&q={text}&cx=9ff2e57a2817b1aec&start={1 + NextPage * 10}"
+            edges = json_obj['items']
+        except KeyError as e:
+            print(json_obj)
+            raise e
     for e in edges:
         try:
             url = e['link']
