@@ -105,7 +105,7 @@ def get_ins_from_google_search(text: str) -> (list, list):
 def export_spot(location="烏來"):
     list_text = []
     list_posts = []
-    hashtags = [location,f"\"{location}\"+food",f"\"{location}\"+photo"]
+    hashtags = [location,f"%22{location}%22+food",f"%22{location}%22+photo"]
     for t in hashtags:
         posts, text = get_ins_from_google_search(t)
         list_text += text
