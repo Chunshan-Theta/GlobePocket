@@ -155,7 +155,7 @@ def export_spot(location="烏來"):
 def ins_get_pic_by_short_code(code='B7WLKhlDn_p'):
     content = requests.get(f"https://www.instagram.com/p/{code}/")
     htmlsoup = BeautifulSoup(content.text, 'html.parser')
-    #print(content.text)
+    print(content.text)
 
     pics = htmlsoup.findAll("meta", {"property": "og:image"})
     #print(pics)
