@@ -135,7 +135,7 @@ def export_spot(location="烏來"):
                     exist_photo =False
                     temp_url=p['url']
                     for sub_p in topics_dict[k]:
-                        if sub_p== temp_url:
+                        if sub_p['url']== temp_url:
                             exist_photo =True
                     if not exist_photo:
                         topics_dict[k].append(p)
