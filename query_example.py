@@ -1,13 +1,17 @@
 from fb_message_bot.fb_helper import FbHelperBot
 from fb_message_bot.fb_quickreply import FbQuickReplyElement, FbQuickReply
 from google_helper import get_place_by_text, get_weather,translate
+from handler.fb_collection import make_attachment_generic
 from sessionscript.manger import SwitchPlan,Stage,RunResult,Plan,SwitchRePattenPlan
+from util.ins_explore import export_spot
 from util.message import string_unknown_default, re_search_from_ins, string_search_from_ins, string_query_default, \
     string_query_get_date, string_query_location, \
     string_query_get_location, string_query_order_completed, string_not_found_location, string_forcast, string_premote_day
 from util.score import default_board
 import datetime
 import re
+
+from util.search_pic import pic, pic_set_obj
 
 orders = {}
 class chatbot_default(Stage):
@@ -26,7 +30,25 @@ class StageSearchFromIns(Stage):
             ]
         })
 
+class StageQueryInsPostCollention(Stage):
+    def run(self,text,sender_id) -> RunResult:
+        # 完成訂單
+        orders[sender_id]["status"] = "completed"
 
+        if text == 'yes':
+            location = orders[sender_id]["location"]
+            return RunResult(success=True, label="RepeatText", body={
+                "bot_actions": [
+                    ("QINS", location)
+                ]
+            })
+        else:
+
+            return RunResult(success=True, label="RepeatText", body={
+                "bot_actions": [
+                    ("MSG", "thanks")
+                ]
+            })
 class StageQueryNewOrder(Stage):
     def run(self,text,sender_id) -> RunResult:
 
@@ -73,13 +95,13 @@ class StageQueryLocation(Stage):
             orders[sender_id]["location"] = place_name
             orders[sender_id]["location_geo"] = (place_geo_lat,place_geo_lng)
 
-            # 完成搜集時間與地點
-            orders[sender_id]["status"] = "completed"
+
             return RunResult(success=True, label="StageQueryLocation", body={
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
                     ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
-                    ("CPT", (place_geo_lat,place_geo_lng,place_types,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d")))
+                    ("CPT", (place_geo_lat,place_geo_lng,place_types,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d"))),
+                    ("FbQuickReply", get_yes_or_no())
                 ]
             })
         else:
@@ -99,12 +121,14 @@ class StageQueryDefaultSwitch(Stage):
     new_order_plan = Plan(units=[StageQueryNewOrder()])
     query_date_plan = Plan(units=[StageQueryDate()])
     query_location_plan = Plan(units=[StageQueryLocation()])
+    query_more_posts = Plan(units=[StageQueryInsPostCollention()])
 
     #
     switch_plan_handler.add_default_plan(plan=default_plan)
     switch_plan_handler.add_plan(switch_label="NEW_ORDER", plan=new_order_plan)
     switch_plan_handler.add_plan(switch_label="QUERY_DATE", plan=query_date_plan)
     switch_plan_handler.add_plan(switch_label="QUERY_LOCATION", plan=query_location_plan)
+    switch_plan_handler.add_plan(switch_label="QUERY_POSTS_INS", plan=query_more_posts)
 
     def run(self,text,sender_id) -> RunResult:
         user_stage = None
@@ -116,6 +140,8 @@ class StageQueryDefaultSwitch(Stage):
             user_stage = "QUERY_DATE"
         elif "location" not in orders[sender_id]:
             user_stage = "QUERY_LOCATION"
+        elif "see_posts" not in orders[sender_id]:
+            user_stage = "QUERY_POSTS_INS"
 
         if user_stage is not None:
             res = self.switch_plan_handler.switch_and_run_finish(switch_label=user_stage, text=text,sender_id=sender_id)
@@ -201,6 +227,30 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     print(f"BOT: {a[1]}")
                 else:
                     bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
+
+            elif a[0] == "QINS":
+                location = a[1]
+                print(f"資料處理中...")
+                posts_collection = export_spot(location=location)
+                if local_mode:
+                    for k,v in posts_collection.items():
+                        temp_pic_list = list()
+                        for p in v:
+                            temp_pic_list.append(pic(**p))
+                        pics = pic_set_obj(temp_pic_list)
+                        ag = make_attachment_generic(pics_obj=pics)
+                        print(k)
+                        print(ag)
+                else:
+                    for k,v in posts_collection.items():
+                        temp_pic_list = list()
+                        for p in v:
+                            temp_pic_list.append(pic(**p))
+                        pics = pic_set_obj(temp_pic_list)
+                        ag = make_attachment_generic(pics_obj=pics,bot=bot_helper)
+                        bot_helper.send_text_message(recipient_id=user_id,message=k)
+                        bot_helper.send_templete_message(recipient_id=user_id,message_obj=ag)
+
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
                 location_types = a[1][2]
@@ -256,6 +306,15 @@ def get_10_day(count=7) -> FbQuickReply:
     FbQuickReply_date_arr = FbQuickReply(text=string_query_default.msg(), elements=date_arr)
     return FbQuickReply_date_arr
 
+def get_yes_or_no() -> FbQuickReply:
+    date_arr = [
+        FbQuickReplyElement(title="yes", payload=""),
+        FbQuickReplyElement(title="no", payload="")
+    ]
+    FbQuickReply_date_arr = FbQuickReply(text="see more post?", elements=date_arr)
+    return FbQuickReply_date_arr
+
+
 """
 base_massager_handler(received_text = "hihi")
 print("-"*20)
@@ -263,11 +322,16 @@ base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
 """
+print("-"*20)
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
-base_massager_handler(received_text = "20/08/31",local_mode=True)
+base_massager_handler(received_text = "20/09/05",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "龍山寺",local_mode=True)
+print("-"*20)
+base_massager_handler(received_text = "yes",local_mode=True)
+print("-"*20)
+base_massager_handler(received_text = "hihi",local_mode=True)
 """
 """
 print("-"*20)
