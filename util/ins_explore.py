@@ -152,8 +152,12 @@ def export_spot(location="烏來"):
 
     return topics_dict
 
+
 def ins_get_pic_by_short_code(code='B7WLKhlDn_p'):
-    content = requests.get(f"https://www.instagram.com/p/{code}/")
+    headers_mobile = {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1'}
+
+    content = requests.get(f"https://www.instagram.com/p/{code}/",headers=headers_mobile)
     htmlsoup = BeautifulSoup(content.text, 'html.parser')
     print(content.text)
 
