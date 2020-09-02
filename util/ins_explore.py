@@ -21,7 +21,7 @@ def demo(lst: list, n_components=5, top_w=10):
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=0.2, min_df=0.05, stop_words="english")
+    cv = CountVectorizer(max_df=0.1, min_df=0.05, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
