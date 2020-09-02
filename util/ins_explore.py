@@ -129,20 +129,17 @@ def export_spot(location="烏來"):
             except IndexError:
                 pass
 
-    arr = demo(list_text, n_components=5, top_w=3)
+    arr = demo(list_text, n_components=3, top_w=3)
     topics_dict = {".".join(topics): [] for topics in arr}
 
+    exist_photo = []
     for p in list_posts:
         for k in topics_dict.keys():
             for tag in str(k).split("."):
                 if p['post_text'].find(tag) != -1:
-                    exist_photo =False
-                    temp_shortcode=p['shortcode']
-                    for sub_p in topics_dict[k]:
-                        if sub_p['shortcode']== temp_shortcode:
-                            exist_photo =True
-                    if not exist_photo:
+                    if p['shortcode'] not in exist_photo:
                         topics_dict[k].append(p)
+                        exist_photo.append(p['shortcode'])
 
     return topics_dict
 
