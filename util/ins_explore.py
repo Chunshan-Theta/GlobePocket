@@ -21,7 +21,7 @@ def demo(lst: list, n_components=5, top_w=10):
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=10, min_df=5, stop_words="english")
+    cv = CountVectorizer(max_df=6, min_df=2, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
@@ -87,8 +87,8 @@ def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
     try:
         edges = json_obj['items']
     except KeyError as e:
+        url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyBinwEHB0IW80b1G9KmHuEA0zVHbUH_lrg&q={text}&cx=c8c145446517fb954&start={1 + NextPage * 10}"
         try:
-            url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyBinwEHB0IW80b1G9KmHuEA0zVHbUH_lrg&q={text}&cx=9ff2e57a2817b1aec&start={1 + NextPage * 10}"
             edges = json_obj['items']
         except KeyError as e:
             print(json_obj)
