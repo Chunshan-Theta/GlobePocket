@@ -166,6 +166,11 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> (str, int):
 
     respond_str = ""
     content_temp = None
+
+    #
+    if "rain" not in json_obj:
+        json_obj['rain']=0.0
+
     for k, v in json_obj.items():
         if k == 'weather':
             content_temp = f"天氣簡評: {translate.enzh(v[0]['description'])} \n"
@@ -190,6 +195,7 @@ def weather_forcast_decoder(json_obj:dict,location_types=None) -> (str, int):
         respond_str += content_temp
 
     json_obj.update({"temp": F2C(json_obj['temp']['eve'])})
+
 
     ##
     score_obj = default_board.computer(place_detail=json_obj, cause_detail_option=True)

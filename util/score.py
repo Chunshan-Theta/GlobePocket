@@ -86,9 +86,9 @@ example_board =ScoreBoard(items={
     "temp": (0.4, [1, 8, 16, 24, 31, 35], ScoreBoard.in_threshold)
 })
 default_board =ScoreBoard(items={
-    "pop": (0.25, [0.1, 0.3, 0.5, 0.9], ScoreBoard.lesser_threshold),
-    "rain": (0.35, [2, 5, 8, 10, 15, 25], ScoreBoard.lesser_threshold),
-    "uvi": (0.15, [3, 6, 8, 10, 13], ScoreBoard.lesser_threshold),
-    "temp": (0.25, [0, 6, 14, 29, 33, 37], ScoreBoard.in_threshold)
+    "pop": (0.25, [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9], ScoreBoard.lesser_threshold),
+    "rain": (0.35, [1,2,3,4,6,8,10, 15, 25], ScoreBoard.lesser_threshold),
+    "uvi": (0.15, [2,3,4,5,6,7,8,9,10,13], ScoreBoard.lesser_threshold),
+    "temp": (0.25, [0, 6, 14,20, 23, 29, 33, 37], ScoreBoard.in_threshold)
 })
 #print(example_board.computer(example_place_detail,cause_detail_option=True))
