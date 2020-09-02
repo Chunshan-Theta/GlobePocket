@@ -1,5 +1,7 @@
 import requests
 import requests as rq
+from util import jieba
+
 
 # 使用scikit-learn進行向量轉換
 # 忽略在文章中佔了90%的文字(即去除高頻率字彙)
@@ -12,7 +14,7 @@ from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 import pandas as pd
 from sklearn.decomposition import LatentDirichletAllocation
 
-import jieba
+
 
 def demo(lst: list, n_components=5, top_w=10):
     lst = [str(item) for item in lst if len(item) > 0]
@@ -94,7 +96,7 @@ def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
             shortcode = url[url.find('/p/')+3:url.find('/',url.find('/p/')+3)]
             description = e['pagemap']['metatags'][0]['og:description']
             source_content_post = description[description.find(":")+1:]
-            content_post = " ".join(jieba.cut_for_search(source_content_post))+source_content_post
+            content_post = " ".join([w for w in list(jieba.cut(source_content_post)) if len(w)>1])
             author = description[description.find("-")+1:description.find(":")]
             image_post = e['pagemap']['metatags'][0]['og:image']
             temp_text_arr.append(str(content_post))
@@ -103,7 +105,7 @@ def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
                 "shortcode":shortcode,
                 "description":description,
                 "media":image_post,
-                "content":content_post,
+                "content":source_content_post,
                 "author":author,
                 "title":title
             })
@@ -176,3 +178,4 @@ print(json.dumps(export_spot(location="龍山寺")))
 
 print(ins_get_pic_by_short_code())
 """
+
