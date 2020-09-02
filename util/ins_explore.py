@@ -120,7 +120,7 @@ def export_spot(location="烏來"):
                     "shortcode": shortcode,
                     "thumbnail_src": thumbnail_src,
                     "accessibility_caption": author,
-                    "title": author,
+                    "title": F"{author} {post_text}",
                     "media": thumbnail_src,
                     "url": f"https://www.instagram.com/p/{shortcode}/",
                 })
