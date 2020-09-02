@@ -78,7 +78,7 @@ def get_ins_post_text(text: str) -> (list, list):
     return edges, temp_arr
 
 def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
-    text.replace(" ","+")
+    text.replace(" ","")
     url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}&sort=date"
     url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}"
     temp_text_arr = []
