@@ -77,6 +77,7 @@ def get_ins_post_text(text: str) -> (list, list):
 
 def get_ins_from_google_search(text: str) -> (list, list):
     url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start=1&sort=date"
+    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start=1"
     temp_text_arr = []
     temp_pic_arr = []
     json_obj = rq.get(url).json()
