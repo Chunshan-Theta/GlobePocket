@@ -228,10 +228,9 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
             elif a[0] == "QINS":
                 location = a[1]
-                print(f"資料處理中...")
-                posts_collection = export_spot(location=location)
-
                 if local_mode:
+                    print(f"資料處理中...")
+                    posts_collection = export_spot(location=location)
 
                     for k, v in posts_collection.items():
                         if len(v)<1:
@@ -250,7 +249,8 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                         print(ag)
 
                 else:
-
+                    bot_helper.send_text_message(recipient_id=user_id,message=f"資料處理中...")
+                    posts_collection = export_spot(location=location)
                     for k, v in posts_collection.items():
 
                         temp_pic_list = list()
@@ -260,7 +260,7 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
 
                         pics = pic_set_obj(temp_pic_list)
 
-                        ag = make_attachment_generic(pics_obj=pics, bot=bot_helper)
+                        ag = make_attachment_generic(pics_obj=pics)
 
                         bot_helper.send_text_message(recipient_id=user_id, message=k)
 
