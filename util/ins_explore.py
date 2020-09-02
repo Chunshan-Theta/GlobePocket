@@ -87,7 +87,7 @@ def get_ins_from_google_search(text: str) -> (list, list):
         try:
             url = e['link']
             snippet = e['snippet']
-            title = e[title]
+            title = e['title']
             shortcode = url[url.find('/p/')+3:url.find('/',url.find('/p/')+3)]
             description = e['pagemap']['metatags'][0]['og:description']
             source_content_post = description[description.find(":")+1:]
@@ -129,7 +129,7 @@ def export_spot(location="烏來"):
                     "post_text": post_text,
                     "thumbnail_src": thumbnail_src,
                     "accessibility_caption": author,
-                    "title": F"{title} {author} {post_text}",
+                    "title": f"{title} {author} {post_text}",
                     "media": thumbnail_src,
                     "url": f"{url}",
                 })
