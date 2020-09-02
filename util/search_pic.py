@@ -24,4 +24,6 @@ class pic_set_obj:
 
     def get_pics(self,count) -> [pic]:
         assert count <=50, "Too many"
+        if len(self.pics) < count:
+            count = len(self.pics)
         return random.choices(population=self.pics, k=count)

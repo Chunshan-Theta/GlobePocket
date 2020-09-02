@@ -112,17 +112,15 @@ def export_spot(location="烏來"):
             try:
                 post_text = p['description']
                 url = p['url']
-                shortcode = url[url[:-1].rfind("/"):-1]
                 thumbnail_src = p['media']
                 author = p['author']
                 list_posts.append({
                     "post_text": post_text,
-                    "shortcode": shortcode,
                     "thumbnail_src": thumbnail_src,
                     "accessibility_caption": author,
                     "title": F"{author} {post_text}",
                     "media": thumbnail_src,
-                    "url": f"https://www.instagram.com/p/{shortcode}/",
+                    "url": f"{url}",
                 })
             except IndexError:
                 pass
