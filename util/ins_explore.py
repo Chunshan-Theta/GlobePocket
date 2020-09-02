@@ -10,13 +10,14 @@ from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 import pandas as pd
 from sklearn.decomposition import LatentDirichletAllocation
 
+import jieba
 
 def demo(lst: list, n_components=5, top_w=10):
     lst = [str(item) for item in lst if len(item) > 0]
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=0.1, min_df=0.001, stop_words="english")
+    cv = CountVectorizer(max_df=0.15, min_df=0.05, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
@@ -72,27 +73,54 @@ def get_ins_post_text(text: str) -> (list, list):
             pass
     return edges, temp_arr
 
+def get_ins_from_google_search(text: str) -> (list, list):
+    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}+\"%23\"&cx=9ff2e57a2817b1aec&start=1&sort=date&type:%20image"
+    temp_text_arr = []
+    temp_pic_arr = []
+    json_obj = rq.get(url).json()
+    edges = json_obj['items']
+    for e in edges:
+        try:
+            url = e['link']
+            snippet = e['snippet']
+            description = e['pagemap']['metatags'][0]['og:description']
+            source_content_post = description[description.find(":")+1:]
+            content_post = " ".join(jieba.cut_for_search(source_content_post))+source_content_post
+            author = description[description.find("-")+1:description.find(":")]
+            image_post = e['pagemap']['metatags'][0]['og:image']
+            temp_text_arr.append(str(content_post))
+            temp_pic_arr.append({
+                "url":url,
+                "description":description,
+                "media":image_post,
+                "content":content_post,
+                "author":author,
+            })
+        except IndexError:
+            pass
+    return temp_pic_arr, temp_text_arr
 
 def export_spot(location="烏來"):
     list_text = []
     list_posts = []
-    hashtags = explore_hashtag(location)
+    hashtags = [location]
     for t in hashtags:
-        posts, text = get_ins_post_text(t)
+        posts, text = get_ins_from_google_search(t)
         list_text += text
         for p in posts:
             #
             try:
-                post_text = p['node']['edge_media_to_caption']['edges'][0]['node']['text']
-                shortcode = p['node']['shortcode']
-                thumbnail_src = p['node']['thumbnail_src']
-                accessibility_caption = p['node']['accessibility_caption'] or shortcode
+                post_text = p['description']
+                url = p['url']
+                shortcode = url[url[:-1].rfind("/"):-1]
+                thumbnail_src = p['media']
+                author = p['author']
                 list_posts.append({
                     "post_text": post_text,
                     "shortcode": shortcode,
                     "thumbnail_src": thumbnail_src,
-                    "accessibility_caption": accessibility_caption,
-                    "title": accessibility_caption,
+                    "accessibility_caption": author,
+                    "title": author,
                     "media": thumbnail_src,
                     "url": f"https://www.instagram.com/p/{shortcode}/",
                 })
@@ -100,19 +128,18 @@ def export_spot(location="烏來"):
                 pass
 
     arr = demo(list_text, n_components=5, top_w=3)
-
     topics_dict = {".".join(topics): [] for topics in arr}
 
     for p in list_posts:
         for k in topics_dict.keys():
             for tag in str(k).split("."):
-                if tag in p['post_text']:
+                if p['post_text'].find(tag) != -1:
                     topics_dict[k].append(p)
 
     return topics_dict
 
-'''
+"""
 import json
 
-print(json.dumps(export_spot(location="西子灣")))
-'''
+print(json.dumps(export_spot(location="龍山寺")))
+"""

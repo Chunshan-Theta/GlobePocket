@@ -33,7 +33,8 @@ class StageSearchFromIns(Stage):
 class StageQueryInsPostCollention(Stage):
     def run(self,text,sender_id) -> RunResult:
 
-
+        # 完成訂單
+        orders[sender_id]["status"] = "completed"
         if text == 'yes':
             location = orders[sender_id]["location"]
             return RunResult(success=True, label="RepeatText", body={
@@ -93,15 +94,13 @@ class StageQueryLocation(Stage):
             place_geo_lng = place['geometry']['location']['lng']
             orders[sender_id]["location"] = place_name
             orders[sender_id]["location_geo"] = (place_geo_lat,place_geo_lng)
-            # 完成訂單
-            orders[sender_id]["status"] = "completed"
 
             return RunResult(success=True, label="StageQueryLocation", body={
                 "bot_actions": [
                     ("MSG", string_query_get_location.msg().format(text=place_name)),
                     ("MSG", string_query_order_completed.msg().format(date=orders[sender_id]["date"],location=orders[sender_id]["location"])),
                     ("CPT", (place_geo_lat,place_geo_lng,place_types,datetime.datetime.strptime(orders[sender_id]["date"],"%y/%m/%d"))),
-                    #("FbQuickReply", get_yes_or_no())
+                    ("FbQuickReply", get_yes_or_no())
                 ]
             })
         else:
@@ -140,7 +139,7 @@ class StageQueryDefaultSwitch(Stage):
             user_stage = "QUERY_DATE"
         elif "location" not in orders[sender_id]:
             user_stage = "QUERY_LOCATION"
-        elif "see_posts" not in orders[sender_id] and False:
+        elif "see_posts" not in orders[sender_id] :
             user_stage = "QUERY_POSTS_INS"
 
         if user_stage is not None:
@@ -227,7 +226,45 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                     print(f"BOT: {a[1]}")
                 else:
                     bot_helper.send_quickreplay_message(recipient_id=user_id,message_obj=a[1])
+            elif a[0] == "QINS":
+                location = a[1]
+                print(f"資料處理中...")
+                posts_collection = export_spot(location=location)
 
+                if local_mode:
+
+                    for k, v in posts_collection.items():
+                        if len(v)<1:
+                            continue
+                        temp_pic_list = list()
+
+                        for p in v:
+                            temp_pic_list.append(pic(**p))
+
+                        pics = pic_set_obj(temp_pic_list)
+
+                        ag = make_attachment_generic(pics_obj=pics)
+
+                        print(k)
+
+                        print(ag)
+
+                else:
+
+                    for k, v in posts_collection.items():
+
+                        temp_pic_list = list()
+
+                        for p in v:
+                            temp_pic_list.append(pic(**p))
+
+                        pics = pic_set_obj(temp_pic_list)
+
+                        ag = make_attachment_generic(pics_obj=pics, bot=bot_helper)
+
+                        bot_helper.send_text_message(recipient_id=user_id, message=k)
+
+                        bot_helper.send_templete_message(recipient_id=user_id, message_obj=ag)
             elif a[0] == "CPT":
                 weather = get_weather(a[1][0], a[1][1])
                 location_types = a[1][2]
@@ -261,30 +298,9 @@ def base_massager_handler(received_text = "hihi",user_id="123456788", bot_helper
                             re_detail = temp_detail_weather
                     msg = string_premote_day.msg().format(date=re_date, detail=re_detail)
                     bot_helper.send_text_message(recipient_id=user_id, message=msg)
-            """
-             elif a[0] == "QINS":
-                 location = a[1]
-                 print(f"資料處理中...")
-                 posts_collection = export_spot(location=location)
-                 if local_mode:
-                     for k,v in posts_collection.items():
-                         temp_pic_list = list()
-                         for p in v:
-                             temp_pic_list.append(pic(**p))
-                         pics = pic_set_obj(temp_pic_list)
-                         ag = make_attachment_generic(pics_obj=pics)
-                         print(k)
-                         print(ag)
-                 else:
-                     for k,v in posts_collection.items():
-                         temp_pic_list = list()
-                         for p in v:
-                             temp_pic_list.append(pic(**p))
-                         pics = pic_set_obj(temp_pic_list)
-                         ag = make_attachment_generic(pics_obj=pics,bot=bot_helper)
-                         bot_helper.send_text_message(recipient_id=user_id,message=k)
-                         bot_helper.send_templete_message(recipient_id=user_id,message_obj=ag)
-             """
+
+
+
 
     #
     print(f"Client: {received_text}")
@@ -321,7 +337,7 @@ print("-"*20)
 base_massager_handler(received_text = "搜尋：大稻埕")
 print("-"*20)
 """
-"""
+
 print("-"*20)
 base_massager_handler(received_text = "hihi",local_mode=True)
 print("-"*20)
@@ -332,7 +348,7 @@ print("-"*20)
 base_massager_handler(received_text = "yes",local_mode=True)
 print("-"*20)
 base_massager_handler(received_text = "hihi",local_mode=True)
-"""
+
 """
 print("-"*20)
 base_massager_handler(received_text = "hihi")
