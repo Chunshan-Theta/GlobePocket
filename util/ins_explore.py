@@ -19,7 +19,7 @@ def demo(lst: list, n_components=5, top_w=10):
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=0.3, min_df=0.01, stop_words="english")
+    cv = CountVectorizer(max_df=0.35, min_df=0.1, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
@@ -75,9 +75,9 @@ def get_ins_post_text(text: str) -> (list, list):
             pass
     return edges, temp_arr
 
-def get_ins_from_google_search(text: str) -> (list, list):
-    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start=1&sort=date"
-    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start=1"
+def get_ins_from_google_search(text: str,NextPage = 0) -> (list, list):
+    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}&sort=date"
+    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start={1+NextPage*10}"
     temp_text_arr = []
     temp_pic_arr = []
     json_obj = rq.get(url).json()
@@ -116,9 +116,9 @@ def get_ins_from_google_search(text: str) -> (list, list):
 def export_spot(location="烏來"):
     list_text = []
     list_posts = []
-    hashtags = [location,f"\"{location}\"+food",f"\"{location}\"+photo"]
-    for t in hashtags:
-        posts, text = get_ins_from_google_search(t)
+
+    for i in range(3):
+        posts, text = get_ins_from_google_search(location,NextPage=i)
         list_text += text
         for p in posts:
             #
