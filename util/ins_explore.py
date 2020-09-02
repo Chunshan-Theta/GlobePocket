@@ -17,7 +17,7 @@ def demo(lst: list, n_components=5, top_w=10):
     reviews_data = pd.DataFrame(lst, columns=['c'])['c'].astype(str).dropna()
     #
     tm = TfidfTransformer()
-    cv = CountVectorizer(max_df=0.3, min_df=0.15, stop_words="english")
+    cv = CountVectorizer(max_df=0.3, min_df=0.01, stop_words="english")
     tv = TfidfVectorizer()
     reviews_data = tm.fit_transform(cv.fit_transform(reviews_data))
 
@@ -132,12 +132,17 @@ def export_spot(location="烏來"):
         for k in topics_dict.keys():
             for tag in str(k).split("."):
                 if p['post_text'].find(tag) != -1:
-                    topics_dict[k].append(p)
+                    exist_photo =False
+                    temp_url=p['url']
+                    for sub_p in topics_dict[k]:
+                        if sub_p== temp_url:
+                            exist_photo =True
+                    if not exist_photo:
+                        topics_dict[k].append(p)
 
     return topics_dict
 
-"""
+
 import json
 
 print(json.dumps(export_spot(location="龍山寺")))
-"""
