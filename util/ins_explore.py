@@ -74,11 +74,15 @@ def get_ins_post_text(text: str) -> (list, list):
     return edges, temp_arr
 
 def get_ins_from_google_search(text: str) -> (list, list):
-    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}+\"%23\"&cx=9ff2e57a2817b1aec&start=1&sort=date&type:%20image"
+    url = f"https://www.googleapis.com/customsearch/v1?key=AIzaSyA3fN27gbdKTelvniFWyrpMpEH6nka1sIg&q={text}&cx=9ff2e57a2817b1aec&start=1&sort=date"
     temp_text_arr = []
     temp_pic_arr = []
     json_obj = rq.get(url).json()
-    edges = json_obj['items']
+    try:
+        edges = json_obj['items']
+    except KeyError as e:
+        print(json_obj)
+        raise e
     for e in edges:
         try:
             url = e['link']
@@ -105,7 +109,7 @@ def get_ins_from_google_search(text: str) -> (list, list):
 def export_spot(location="烏來"):
     list_text = []
     list_posts = []
-    hashtags = [location,f"%22{location}%22+food",f"%22{location}%22+photo"]
+    hashtags = [location,f"\"{location}\"+food",f"\"{location}\"+photo"]
     for t in hashtags:
         posts, text = get_ins_from_google_search(t)
         list_text += text
